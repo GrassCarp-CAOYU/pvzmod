@@ -1,14 +1,13 @@
 package com.hungteen.pvz.common.item.spawn.card;
 
-import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.types.base.IPAZType;
-import com.hungteen.pvz.common.PVZSounds;
 import com.hungteen.pvz.common.effect.PVZEffects;
 import com.hungteen.pvz.common.enchantment.EnchantmentHandler;
 import com.hungteen.pvz.common.enchantment.card.ImmediateCDEnchantment;
 import com.hungteen.pvz.common.enchantment.card.SunReductionEnchantment;
+import com.hungteen.pvz.common.impl.type.SkillTypes;
 import com.hungteen.pvz.common.item.PVZItemTabs;
-import com.hungteen.pvz.common.item.PVZRarities;
+import com.hungteen.pvz.common.sound.PVZSounds;
 import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.StringUtil;
 import net.minecraft.ChatFormatting;
@@ -122,23 +121,23 @@ public class SummonCardItem extends Item{
 //        });
     }
 
-//    public static void appendSkillToolTips(ItemStack stack, List<ITextComponent> tooltip){
-//        if(stack.getItem() instanceof SummonCardItem){
-//            final IPAZType type = ((SummonCardItem) stack.getItem()).type;
-//            type.getSkills().forEach(skill -> {
-//                final int lvl = SkillTypes.getSkillLevel(stack, skill);
-//                if(lvl > 0){
-//                    tooltip.add(skill.getText().append(StringUtil.getRomanString(lvl)).withStyle(TextFormatting.DARK_PURPLE));
-//                }
-//            });
-//        }
-//    }
+    public static void appendSkillToolTips(ItemStack stack, List<Component> tooltip){
+        if(stack.getItem() instanceof SummonCardItem){
+            final IPAZType type = ((SummonCardItem) stack.getItem()).type;
+            type.getSkills().forEach(skill -> {
+                final int lvl = SkillTypes.getSkillLevel(stack, skill);
+                if(lvl > 0){
+                    tooltip.add(skill.getText().append(" " + StringUtil.getRomanString(lvl)).withStyle(ChatFormatting.DARK_PURPLE));
+                }
+            });
+        }
+    }
 
     @Override
     public Rarity getRarity(ItemStack itemStack) {
-        //Upgrade Card is Epic ! Enjoy Card is Mega !
+        //Upgrade Card is Epic ! Enjoy Card is RARE !
         if(itemStack.getItem() instanceof SummonCardItem){
-            return ((SummonCardItem) itemStack.getItem()).isEnjoyCard ? PVZRarities.MEGA : ((SummonCardItem) itemStack.getItem()).type.getRank().getRarity();
+            return ((SummonCardItem) itemStack.getItem()).isEnjoyCard ? Rarity.RARE : ((SummonCardItem) itemStack.getItem()).type.getCardType().getRarity();
         }
         return super.getRarity(itemStack);
     }
@@ -166,7 +165,7 @@ public class SummonCardItem extends Item{
 
     @Override
     public int getEnchantmentValue() {
-        return this.type.getRank().getEnchantPoint();
+        return 15;
     }
 
     public void notifyPlayerAndCD(Player player, ItemStack stack, PlacementErrors error) {

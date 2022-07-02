@@ -1,8 +1,8 @@
 package com.hungteen.pvz.common.entity.drop;
 
+import com.hungteen.pvz.api.events.LivingCollectDropEvent;
 import com.hungteen.pvz.api.interfaces.ICollectible;
 import com.hungteen.pvz.common.entity.PVZEntity;
-import com.hungteen.pvz.common.event.events.LivingCollectDropEvent;
 import com.hungteen.pvz.utils.EntityUtil;
 
 import net.minecraft.nbt.CompoundTag;
@@ -76,7 +76,7 @@ public abstract class PVZDrop extends PVZEntity implements ICollectible {
      */
     @Override
     public void playerTouch(Player entityIn) {
-        if (this.tickCount > 50 && this.canCollectBy(entityIn)) {
+        if (this.tickCount > 10 && this.canCollectBy(entityIn)) {
             this.onCollect(entityIn);
         }
     }

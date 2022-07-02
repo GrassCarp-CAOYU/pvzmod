@@ -1,27 +1,33 @@
 package com.hungteen.pvz;
 
-import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.client.ClientProxy;
 import com.hungteen.pvz.client.particle.PVZParticles;
 import com.hungteen.pvz.common.CommonProxy;
 import com.hungteen.pvz.common.CommonRegister;
-import com.hungteen.pvz.common.PVZSounds;
 import com.hungteen.pvz.common.advancement.AdvancementHandler;
 import com.hungteen.pvz.common.block.PVZBlocks;
+import com.hungteen.pvz.common.blockentity.PVZBlockEntities;
 import com.hungteen.pvz.common.capability.CapabilityHandler;
+import com.hungteen.pvz.common.command.PVZCommandHandler;
 import com.hungteen.pvz.common.effect.PVZEffects;
 import com.hungteen.pvz.common.effect.PVZPotions;
 import com.hungteen.pvz.common.enchantment.PVZEnchantments;
 import com.hungteen.pvz.common.entity.PVZAttributes;
 import com.hungteen.pvz.common.entity.PVZEntities;
+import com.hungteen.pvz.common.impl.type.CardTypes;
 import com.hungteen.pvz.common.impl.type.EssenceTypes;
 import com.hungteen.pvz.common.impl.type.RankTypes;
+import com.hungteen.pvz.common.impl.type.SkillTypes;
 import com.hungteen.pvz.common.impl.type.plant.PVZPlants;
+import com.hungteen.pvz.common.impl.type.zombie.PVZZombies;
 import com.hungteen.pvz.common.item.PVZItems;
+import com.hungteen.pvz.common.menu.PVZMenus;
 import com.hungteen.pvz.common.network.PVZPacketHandler;
 import com.hungteen.pvz.common.recipe.PVZRecipeTypes;
 import com.hungteen.pvz.common.recipe.PVZRecipes;
+import com.hungteen.pvz.common.sound.PVZSounds;
 import com.hungteen.pvz.common.world.biome.PVZBiomes;
+import com.hungteen.pvz.common.world.dimension.PVZDimensions;
 import com.hungteen.pvz.common.world.feature.PVZFeatures;
 import com.hungteen.pvz.common.world.spawn.SpawnRegister;
 import com.hungteen.pvz.data.DataGenHandler;
@@ -33,7 +39,6 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -55,14 +60,13 @@ public class PVZMod {
     // Mod Version.
     public static final String MOD_VERSION = "0.7";
     // Proxy of Server and Client.
-    public static CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+    public static CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 
     public PVZMod() {
         //get mod event bus.
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(EventPriority.NORMAL, PVZMod::setUpComplete);
         modBus.addListener(EventPriority.NORMAL, PVZMod::setUp);
-        modBus.addListener(EventPriority.NORMAL, PVZMod::setUpClient);
         modBus.addListener(EventPriority.NORMAL, DataGenHandler::dataGen);
         modBus.addListener(EventPriority.NORMAL, CapabilityHandler::registerCapabilities);
         modBus.addListener(EventPriority.NORMAL, PVZEntities::addEntityAttributes);
@@ -74,6 +78,7 @@ public class PVZMod {
         //get forge event bus.
         IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, CapabilityHandler::attachCapabilities);
+        forgeBus.addListener(EventPriority.NORMAL, PVZCommandHandler::init);
 //        forgeBus.addListener(EventPriority.NORMAL, GenStructures::addDimensionalSpacing);
         forgeBus.addListener(EventPriority.HIGH, PVZBiomes::biomeModification);
 //        forgeBus.addListener(EventPriority.NORMAL, PVZDataPackManager::addReloadListenerEvent);
@@ -94,33 +99,31 @@ public class PVZMod {
             PVZFeatures.registerFeatures();
 //            PotionRecipeHandler.registerPotionRecipes();
             CommonRegister.registerCompostable();
+            CommonRegister.registerAxeStrips();
             BiomeUtil.initBiomeSet();
             SpawnRegister.registerEntitySpawns();
+            PVZDimensions.register();
         });
 
         PVZPacketHandler.init();
-    }
-
-    public static void setUpClient(FMLClientSetupEvent event) {
-        PROXY.setUpClient();
     }
 
     /**
      * register paz stuff at {@link PVZMod#PVZMod()}.
      */
     public static void coreRegister() {
-        //register essences.
         EssenceTypes.EssenceType.register();
-        //register ranks.
         RankTypes.RankType.register();
-//        //register skills.
-//        SkillTypes.SkillType.register();
-        //register plants.
+        CardTypes.CardType.register();
         PVZPlants.PVZPlantType.register();
+        PVZZombies.PVZZombieType.register();
+        SkillTypes.SkillType.register();
+
 //        CustomPlants.register();
 //        MemePlants.register();
 //        OtherPlants.register();
-//        //register zombies.
+        //register zombies.
+
 //        GrassZombies.register();
 //        PoolZombies.register();
 //        RoofZombies.register();
@@ -146,10 +149,10 @@ public class PVZMod {
         PVZPotions.POTIONS.register(bus);
         PVZParticles.PARTICLE_TYPES.register(bus);
         PVZAttributes.ATTRIBUTES.register(bus);
+        PVZBlockEntities.TILE_ENTITY_TYPES.register(bus);
+        PVZMenus.CONTAINER_TYPES.register(bus);
 //        FeatureRegister.FEATURES.register(bus);
 //        StructureRegister.STRUCTURE_FEATURES.register(bus);
-//        TileEntityRegister.TILE_ENTITY_TYPES.register(bus);
-//        ContainerRegister.CONTAINER_TYPES.register(bus);
     }
 
 }

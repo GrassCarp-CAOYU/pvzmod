@@ -2,14 +2,23 @@ package com.hungteen.pvz.common.item.spawn.card;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.types.IPlantType;
+import com.hungteen.pvz.common.advancement.trigger.SummonCardUseTrigger;
+import com.hungteen.pvz.common.block.PVZBlocks;
 import com.hungteen.pvz.common.enchantment.card.plant.SoillessPlantEnchantment;
 import com.hungteen.pvz.common.entity.plant.base.PVZPlant;
+import com.hungteen.pvz.common.impl.type.plant.PVZPlants;
+import com.hungteen.pvz.common.sound.PVZSounds;
 import com.hungteen.pvz.utils.PlayerUtil;
 import com.hungteen.pvz.utils.enums.Resources;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -17,14 +26,19 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -97,9 +111,9 @@ public class PlantCardItem extends SummonCardItem {
 //                return InteractionResultHolder.fail(heldStack);
 //            }
             if(plantType.getPlantBlock().isPresent()) {
-//                if(PlantCardItem.checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos)) {
-//                    return InteractionResultHolder.success(heldStack);
-//                }
+                if(PlantCardItem.checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos)) {
+                    return InteractionResultHolder.success(heldStack);
+                }
             } else {
                 if(checkSunAndSummonPlant(player, heldStack, plantStack, cardItem, pos, (l)->{})) {
                     return InteractionResultHolder.success(heldStack);
@@ -139,7 +153,7 @@ public class PlantCardItem extends SummonCardItem {
             return InteractionResult.FAIL;
         }
         /* check outer plants */
-        if(plantType.getOuterPlant().isPresent()) {
+        if(plantType.isOuterPlant()) {
             this.notifyPlayerAndCD(player, heldStack, PlacementErrors.OUTER_ERROR);
             return InteractionResult.FAIL;
         }
@@ -171,13 +185,13 @@ public class PlantCardItem extends SummonCardItem {
             return InteractionResult.FAIL;
         }
         if(plantType.getPlantBlock().isPresent()) {
-//            if(world.getBlockState(pos).canBeReplaced(new BlockPlaceContext(context))) {
-//                checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos);
-//                return InteractionResult.SUCCESS;
-//            } else if(world.isEmptyBlock(pos.above()) && world.getBlockState(pos).canOcclude()) {// can plant here
-//                checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos.above());
-//                return InteractionResult.SUCCESS;
-//            }
+            if(world.getBlockState(pos).canBeReplaced(new BlockPlaceContext(context))) {
+                checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos);
+                return InteractionResult.SUCCESS;
+            } else if(world.isEmptyBlock(pos.above()) && world.getBlockState(pos).canOcclude()) {// can plant here
+                checkSunAndPlaceBlock(player, heldStack, plantStack, cardItem, pos.above());
+                return InteractionResult.SUCCESS;
+            }
         } else {
             BlockPos spawnPos = pos;
             if(! world.getBlockState(pos).getCollisionShape(world, pos).isEmpty()) {
@@ -202,8 +216,8 @@ public class PlantCardItem extends SummonCardItem {
 //            }
             /* other plant card */
             if(! handlePlantEntity(player, plantType, plantStack, pos, plantEntity -> {
-//				/* update maxLevel and its owner */
-//                plantEntity.onSpawnedByPlayer(player, cardItem.getBasisSunCost(plantStack));
+				/* update maxLevel and its owner */
+                plantEntity.onSpawnedByPlayer(player, getCardCost(player, plantStack));
                 /* other operations */
                 consumer.accept(plantEntity);
                 /* enchantment effects */
@@ -235,43 +249,43 @@ public class PlantCardItem extends SummonCardItem {
         return true;
     }
 
-//    /**
-//     * check sunCost and place plantBlock.
-//     */
-//    public static boolean checkSunAndPlaceBlock(Player player, ItemStack plantStack, ItemStack heldStack, PlantCardItem cardItem, BlockPos pos) {
-//        final IPlantType plantType = cardItem.plantType;
-//        final BlockState state = PlantCardItem.getBlockState(player, plantType);
-//        if(checkSunAndCD(player, cardItem, plantStack, true, p -> {
-//            if(state == null) {
-//                PVZMod.LOGGER.error("Plant Card : No such plant block !");
-//                return false;
-//            }
-//            return true;
-//        })) {
-//            /* handle cd and misc */
-//            PlantCardItem.onUsePlantCard(player, heldStack, plantStack, (PlantCardItem) heldStack.getItem());
-//            if(heldStack.getItem() instanceof ImitaterCardItem) {
+    /**
+     * check sunCost and place plantBlock.
+     */
+    public static boolean checkSunAndPlaceBlock(Player player, ItemStack plantStack, ItemStack heldStack, PlantCardItem cardItem, BlockPos pos) {
+        final IPlantType plantType = cardItem.plantType;
+        final BlockState state = PlantCardItem.getBlockState(player, plantType);
+        if(checkSunAndCD(player, cardItem, plantStack, p -> {
+            if(state == null) {
+                PVZMod.LOGGER.error("Plant Card : No such plant block !");
+                return false;
+            }
+            return true;
+        })) {
+            /* handle cd and misc */
+            PlantCardItem.onUsePlantCard(player, heldStack, plantStack, (PlantCardItem) heldStack.getItem());
+            if(heldStack.getItem() instanceof ImitaterCardItem) {
 //                if(! ImitaterCardItem.summonImitater(player, heldStack, plantStack, cardItem, pos, (imitater) -> {})){
 //                    return false;
 //                }
-//            } else {
-//                handlePlantBlock(player.level, plantType, state, pos);
-//            }
-//            if (player instanceof ServerPlayer) {
-//                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, heldStack);
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
+            } else {
+                handlePlantBlock(player.level, plantType, state, pos);
+            }
+            if (player instanceof ServerPlayer) {
+                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, heldStack);
+            }
+            return true;
+        }
+        return false;
+    }
 
-//    /**
-//     * {@link #checkSunAndPlaceBlock(Player, ItemStack, ItemStack, PlantCardItem, BlockPos)}
-//     */
-//    public static void handlePlantBlock(Level world, IPlantType plantType, BlockState state, BlockPos pos) {
-//        world.setBlock(pos, state, 11);
-//        world.playSound((Player) null, pos.getX(), pos.getY(), pos.getZ(), plantType.isWaterPlant() ? PVZSounds.PLACE_PLANT_WATER.get() : SoundRegister.PLACE_PLANT_GROUND.get(), SoundCategory.BLOCKS, 1F, 1F);
-//    }
+    /**
+     * {@link #checkSunAndPlaceBlock(Player, ItemStack, ItemStack, PlantCardItem, BlockPos)}
+     */
+    public static void handlePlantBlock(Level world, IPlantType plantType, BlockState state, BlockPos pos) {
+        world.setBlock(pos, state, 11);
+        world.playSound((Player) null, pos.getX(), pos.getY(), pos.getZ(), plantType.isWaterPlant() ? PVZSounds.PLACE_PLANT_WATER.get() : PVZSounds.PLACE_PLANT_GROUND.get(), SoundSource.BLOCKS, 1F, 1F);
+    }
 
 //    /**
 //     * check sunCost and add outerplant for plantEntity
@@ -465,11 +479,7 @@ public class PlantCardItem extends SummonCardItem {
             player.getCooldowns().addCooldown(heldStack.getItem(), 10);
         }
         if(player instanceof ServerPlayer) {
-//            if(item.plantType.getUpgradeFrom().isPresent()){
-//                PlayerPlacePAZTrigger.INSTANCE.trigger((ServerPlayerEntity) player, PlayerPlacePAZTrigger.PlaceTypes.UPGRADE.toString().toLowerCase(), item.plantType.getIdentity());
-//            } else{
-//                PlayerPlacePAZTrigger.INSTANCE.trigger((ServerPlayerEntity) player, PlayerPlacePAZTrigger.PlaceTypes.PLANT.toString().toLowerCase(), item.plantType.getIdentity());
-//            }
+            SummonCardUseTrigger.INSTANCE.trigger((ServerPlayer) player, heldStack, plantStack);
         }
         player.awardStat(Stats.ITEM_USED.get(item));
     }
@@ -481,26 +491,26 @@ public class PlantCardItem extends SummonCardItem {
         PlayerUtil.setItemStackCD(player, heldStack, getCardCD(player, plantStack));
     }
 
-//    @Nullable
-//    public static BlockState getBlockState(PlayerEntity player, IPlantType plant) {
-//        return plant == PVZPlants.LILY_PAD ? BlockRegister.LILY_PAD.get().getStateForPlacement(player) :
-//                plant == PVZPlants.FLOWER_POT ? BlockRegister.FLOWER_POT.get().getStateForPlacement(player) :
-//                        null;
-//    }
-//
-//    @Nullable
-//    public static BlockState getBlockState(Direction direction, IPlantType plant) {
-//        return plant == PVZPlants.LILY_PAD ? BlockRegister.LILY_PAD.get().getStateForPlacement(direction) :
-//                plant == PVZPlants.FLOWER_POT ? BlockRegister.FLOWER_POT.get().getStateForPlacement(direction) :
-//                        null;
-//    }
+    @Nullable
+    public static BlockState getBlockState(Player player, IPlantType plant) {
+        return plant == PVZPlants.LILY_PAD ? PVZBlocks.LILY_PAD.get().getStateForPlacement(player) :
+                plant == PVZPlants.FLOWER_POT ? PVZBlocks.FLOWER_POT.get().getStateForPlacement(player) :
+                        null;
+    }
 
-//    @Override
-//    public void appendHoverText(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-//        tooltip.add(new TranslationTextComponent("tooltip.pvz.plant_card_info").withStyle(TextFormatting.GREEN));
-//        super.appendHoverText(stack, worldIn, tooltip, flagIn);
-//        final PlantCardItem item = (PlantCardItem) stack.getItem();
-//        if(item != null) {
+    @Nullable
+    public static BlockState getBlockState(Direction direction, IPlantType plant) {
+        return plant == PVZPlants.LILY_PAD ? PVZBlocks.LILY_PAD.get().getStateForPlacement(direction) :
+                plant == PVZPlants.FLOWER_POT ? PVZBlocks.FLOWER_POT.get().getStateForPlacement(direction) :
+                        null;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        tooltip.add(new TranslatableComponent("tooltip.pvz.plant_card_info").withStyle(ChatFormatting.GREEN));
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
+        final PlantCardItem item = (PlantCardItem) stack.getItem();
+        if(item != null) {
 //            final IPlantType plant = item.plantType;
 //            /* upgrade plant without soilless plant enchantment */
 //            if(! SoillessPlantEnchantment.isSoilless(stack)) {
@@ -518,7 +528,8 @@ public class PlantCardItem extends SummonCardItem {
 //            if(TOOL_TIP_TYPES.contains(plant)) {
 //                tooltip.add(new TranslationTextComponent("tooltip.pvz." + plant.toString().toLowerCase() + "_card").withStyle(TextFormatting.DARK_RED));
 //            }
-//        }
-//    }
+        }
+        appendSkillToolTips(stack, tooltip);
+    }
 
 }

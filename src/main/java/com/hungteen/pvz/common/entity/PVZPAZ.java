@@ -1,21 +1,15 @@
 package com.hungteen.pvz.common.entity;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.jetbrains.annotations.Nullable;
-
 import com.hungteen.pvz.api.interfaces.IAlmanacEntry;
 import com.hungteen.pvz.api.interfaces.IPAZEntity;
 import com.hungteen.pvz.api.types.ISkillType;
-import com.hungteen.pvz.common.entity.ai.PVZLookRandomlyGoal;
+import com.hungteen.pvz.common.PVZDamageSource;
+import com.hungteen.pvz.common.entity.ai.goal.PVZLookRandomlyGoal;
 import com.hungteen.pvz.common.impl.PAZAlmanacs;
 import com.hungteen.pvz.common.impl.type.SkillTypes;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.misc.WeightList;
 import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -24,17 +18,19 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.common.ForgeMod;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @program: pvzmod-1.18.x
@@ -49,7 +45,17 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
     private static final EntityDataAccessor<Integer> ANIM_TICK = SynchedEntityData.defineId(PVZPAZ.class, EntityDataSerializers.INT);
     protected static final WeightList<DropType> NORMAL_DROP_LIST = new WeightList<>();
     protected Player ownerPlayer;
-    private boolean updateAttributesWhenSpawn = true;
+    // place info.
+    protected int sunCost;
+    /* states */
+//    protected boolean canBeCold = true;
+//    protected boolean canBeFrozen = true;
+//    protected boolean canBeCharm = true;
+//    protected boolean canBeButtered = true;
+//    protected boolean canBeMini = true;
+//    protected boolean canBeInvisible = true;
+//    protected boolean canBeRemove = true;
+//    protected boolean canBeStealByBungee = true;
 
     public PVZPAZ(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -129,6 +135,18 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
         this.goalSelector.addGoal(2, new PVZLookRandomlyGoal(this));
     }
 
+    /**
+     * spawned by player for the first time.
+     */
+    public void onSpawnedByPlayer(@Nullable Player player, int sunCost) {
+        if(player != null) {
+            this.setOwnerUUID(player.getUUID());
+        }
+        this.sunCost = sunCost;
+        this.heal(this.getMaxHealth());
+        this.setPersistenceRequired();//avoid being refreshed by chunk.
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
@@ -157,21 +175,88 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
 //            if (player != null && player instanceof ServerPlayerEntity) {
 //                PlantSuperTrigger.INSTANCE.trigger((ServerPlayerEntity) player, this);
 //            }
-//            this.getOuterPlantInfo().ifPresent(p -> p.onEnergetic(this));
 //        }
     }
 
     @Override
+    public boolean isInvulnerableTo(DamageSource source) {
+        if(source instanceof PVZDamageSource && ((PVZDamageSource) source).isMustHurt()) {
+            return false;
+        }
+        return source != DamageSource.OUT_OF_WORLD && !source.isCreativePlayer() && this.isPAZInvulnerableTo(source);
+    }
+
+    public boolean isPAZInvulnerableTo(DamageSource source){
+        return false;
+    }
+
+    /**
+     * check can set target as attackTarget.
+     */
+    public boolean checkCanPAZTarget(Entity target) {
+        return EntityUtil.checkCanEntityBeTarget(this, target) && this.canPAZTarget(target);
+    }
+
+    /**
+     * check can attack target.
+     */
+    public boolean checkCanPAZAttack(Entity target) {
+        return EntityUtil.checkCanEntityBeAttack(this, target) && this.canPAZTarget(target);
+    }
+
+    /**
+     * can be targeted by living, often use for plant's target.
+     * e.g. plants with metal can not be targeted.
+     */
+    public boolean canBeTargetBy(LivingEntity living) {
+        return true;
+    }
+
+    /**
+     * do not attack living.
+     * e.g. spike weed, bungee, plants with steel ladder.
+     */
+    public boolean canPAZTarget(Entity target) {
+        if(target instanceof PVZPAZ){
+            return ((PVZPAZ) target).canBeTargetBy(this);
+        }
+        return true;
+    }
+
+    @Override
     public boolean canBeEnergetic() {
-        return this.canNormalUpdate();
+        return this.canNormalUpdate() && ! EntityUtil.inEnergetic(this);
+    }
+
+    @Override
+    protected void pushEntities() {
+        double dd = this.getCollideWidthOffset();
+        List<LivingEntity> list = this.level.getEntitiesOfClass(LivingEntity.class,
+                this.getBoundingBox().inflate(dd, 0, dd));
+        if (!list.isEmpty()) {
+            int i = this.level.getGameRules().getInt(GameRules.RULE_MAX_ENTITY_CRAMMING);
+            if (i > 0 && list.size() > i - 1 && this.random.nextInt(4) == 0) {
+                int j = 0;
+                for (int k = 0; k < list.size(); ++k) {
+                    if (!((Entity) list.get(k)).isPassenger()) {
+                        ++j;
+                    }
+                }
+                if (j > i - 1) {
+                    this.hurt(DamageSource.CRAMMING, 6.0F);
+                }
+            }
+            for (int l = 0; l < list.size(); ++ l) {
+                final LivingEntity target = list.get(l);
+                if (! this.is(target) && this.shouldCollideWithEntity(target)) {// can collide with
+                    this.doPush(target);
+                }
+            }
+        }
     }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        //can get hurt each attack by pvz damage.
-        if (source instanceof PVZDamageSource) {
-            this.invulnerableTime = 0;
-        }
         //TODO Attack Back.
 //        if(source.getEntity() instanceof LivingEntity && EntityUtil.checkCanEntityBeAttack(this, source.getEntity())){
 //            //determine whether to change target.
@@ -196,6 +281,7 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
 
     @Override
     protected void tickDeath() {
+        super.tickDeath();
         ++ this.deathTime;
         if (this.canRemoveWhenDeath()) {
             for (int i = 0; i < 5; ++i) {
@@ -232,14 +318,6 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
     /* features */
     protected abstract float getLife();
 
-//    protected float getInnerLife(){
-//        return 0;
-//    }
-//
-//    protected float getOuterLife(){
-//        return 0;
-//    }
-
     public int getArmor() {
         return 0;
     }
@@ -256,11 +334,26 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
         ));
     }
 
+    /**
+     * check collide.
+     */
+    protected double getCollideWidthOffset() {
+        return 0;
+    }
+
+    protected boolean shouldCollideWithEntity(Entity entity){
+        return true;
+    }
+
     /* misc get */
 
     public float getSkillValue(ISkillType type){
         final int lvl = SkillTypes.getSkillLevel(this.getSkills(), type);
         return type.getValueAt(lvl);
+    }
+
+    public boolean hasSkill(ISkillType type){
+        return SkillTypes.getSkillLevel(this.getSkills(), type) > 0;
     }
 
     /**
@@ -315,6 +408,7 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
         compound.put(SkillTypes.SKILL_TAG, this.getSkills());
         compound.putInt("ExistTick", this.getExistTick());
         compound.putInt("AnimTick", this.getAnimTick());
+        compound.putInt("SunCost", this.sunCost);
     }
 
     @Override
@@ -331,6 +425,9 @@ public abstract class PVZPAZ extends PVZMob implements IPAZEntity {
         }
         if(compound.contains("AnimTick")){
             this.setAnimTick(compound.getInt("AnimTick"));
+        }
+        if(compound.contains("SunCost")){
+            this.sunCost = compound.getInt("SunCost");
         }
         //use to update attributes when using data pack.
         if(! compound.contains("UpdateAttributesWhenSpawn") || compound.getBoolean("UpdateAttributesWhenSpawn")){

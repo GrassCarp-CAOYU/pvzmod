@@ -1,6 +1,5 @@
 package com.hungteen.pvz.common.impl.type.plant;
 
-import com.hungteen.pvz.api.interfaces.IPlantInfo;
 import com.hungteen.pvz.api.types.*;
 import com.hungteen.pvz.api.types.base.IPAZType;
 import com.hungteen.pvz.common.impl.type.EssenceTypes;
@@ -35,10 +34,10 @@ public abstract class PlantType extends PAZTypes.PAZType implements IPlantType {
 
     protected IEssenceType plantEssence = EssenceTypes.APPEASE;
     protected Supplier<Block> plantBlock;
-    protected Supplier<IPlantInfo> outerPlant;
     protected IPlaceType cardPlacement = PlaceTypes.COMMON;
     protected boolean isShroomPlant;
     protected boolean isWaterPlant;
+    protected boolean isOuterPlant;
 
     protected PlantType(String name) {
         super(name);
@@ -65,12 +64,12 @@ public abstract class PlantType extends PAZTypes.PAZType implements IPlantType {
     }
 
     @Override
-    public Optional<IPlantInfo> getOuterPlant() {
-        return this.outerPlant == null ? Optional.empty() : Optional.ofNullable(this.outerPlant.get());
+    public boolean isOuterPlant() {
+        return this.isOuterPlant;
     }
 
     @Override
-    public IEssenceType getEssence() {
+    public IEssenceType getEssenceType() {
         return this.plantEssence;
     }
 
@@ -100,6 +99,11 @@ public abstract class PlantType extends PAZTypes.PAZType implements IPlantType {
 
     public PlantType rank(IRankType type) {
         this.rankType = type;
+        return this;
+    }
+
+    public PlantType cardType(ICardType type) {
+        this.cardType = type;
         return this;
     }
 
@@ -154,6 +158,16 @@ public abstract class PlantType extends PAZTypes.PAZType implements IPlantType {
 
     public PlantType placement(IPlaceType placeType){
         this.cardPlacement = placeType;
+        return this;
+    }
+
+    public PlantType outer(boolean isOuterPlant){
+        this.isOuterPlant = isOuterPlant;
+        return this;
+    }
+
+    public PlantType block(Supplier<Block> plantBlock){
+        this.plantBlock = plantBlock;
         return this;
     }
 

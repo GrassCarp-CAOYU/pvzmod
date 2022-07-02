@@ -1,13 +1,12 @@
 package com.hungteen.pvz.common.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.hungteen.pvz.api.PVZAPI;
+import com.hungteen.pvz.api.types.ICardType;
 import com.hungteen.pvz.api.types.IEssenceType;
 import com.hungteen.pvz.api.types.IRankType;
+import com.hungteen.pvz.api.types.ISkillType;
 import com.hungteen.pvz.api.types.base.IPAZType;
 import com.hungteen.pvz.common.impl.type.PAZTypes;
 import com.hungteen.pvz.utils.Util;
@@ -23,6 +22,8 @@ public class PVZAPIImpl implements PVZAPI.IPVZAPI {
 
     private static final List<IEssenceType> ESSENCES = new ArrayList<>();
     private static final List<IRankType> RANKS = new ArrayList<>();
+    private static final List<ICardType> CARDS = new ArrayList<>();
+    private static final List<ISkillType> SKILLS = new ArrayList<>();
 
     @Override
     public void registerPAZType(IPAZType type) {
@@ -44,12 +45,12 @@ public class PVZAPIImpl implements PVZAPI.IPVZAPI {
         if (! ESSENCES.contains(type)) {
             ESSENCES.add(type);
         } else{
-            Util.warn("Essence Register : Duplicate Type !");
+            Util.warn("Essence Type Register : Duplicate Type !");
         }
     }
 
     @Override
-    public List<IEssenceType> getEssences() {
+    public List<IEssenceType> getEssenceTypes() {
         return Collections.unmodifiableList(ESSENCES);
     }
 
@@ -58,13 +59,36 @@ public class PVZAPIImpl implements PVZAPI.IPVZAPI {
         if(! RANKS.contains(type)){
             RANKS.add(type);
         } else{
-            Util.warn("Rank Register : Duplicate Type !");
+            Util.warn("Rank Type Register : Duplicate Type !");
         }
     }
 
     @Override
-    public List<IRankType> getRanks() {
+    public void registerCardType(ICardType type) {
+        if(! CARDS.contains(type)){
+            CARDS.add(type);
+        } else{
+            Util.warn("Card Type Register : Duplicate Type !");
+        }
+    }
+
+    @Override
+    public void registerSkillType(ISkillType type) {
+        if(! SKILLS.contains(type)){
+            SKILLS.add(type);
+        } else{
+            Util.warn("Skill Type Register : Duplicate Type !");
+        }
+    }
+
+    @Override
+    public List<IRankType> getRankTypes() {
         return Collections.unmodifiableList(RANKS);
+    }
+
+    @Override
+    public List<ICardType> getCardTypes() {
+        return Collections.unmodifiableList(CARDS);
     }
 
 }

@@ -3,7 +3,7 @@ package com.hungteen.pvz.common.entity.drop;
 import java.util.Random;
 
 import com.hungteen.pvz.PVZConfig;
-import com.hungteen.pvz.common.PVZSounds;
+import com.hungteen.pvz.common.sound.PVZSounds;
 import com.hungteen.pvz.common.entity.PVZEntities;
 import com.hungteen.pvz.utils.EntityUtil;
 import com.hungteen.pvz.utils.MathUtil;
@@ -121,7 +121,7 @@ public class Sun extends PVZDrop {
         final Sun sun = PVZEntities.SUN.get().create(world);
         sun.setAmount(amount);
         EntityUtil.onEntitySpawn(world, sun, pos);
-        final double dy = speed * 0.6;
+        final double dy = speed * 0.3+0.2;
         final double dx = MathUtil.getRandomFloat(world.getRandom());
         final double dz = MathUtil.getRandomFloat(world.getRandom());
         sun.setDeltaMovement(new Vec3(dx, 0, dz).scale(speed).add(0, dy, 0));

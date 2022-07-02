@@ -1,6 +1,15 @@
 {
   "replace": false,
   "values": [
-    "pvz:sun_flower"
+    "pvz:cabbage_pult",
+    "pvz:flower_pot",
+    "pvz:iceberg_lettuce",
+    "pvz:lily_pad",
+    "pvz:pea_shooter",
+    "pvz:potato_mine",
+    "pvz:repeater",
+    "pvz:snow_pea",
+    "pvz:sun_flower",
+    "pvz:wall_nut"
   ]
 }

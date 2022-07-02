@@ -1,7 +1,6 @@
 package com.hungteen.pvz.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
@@ -14,8 +13,8 @@ public class PVZCommandHandler {
 
     public static void init(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        ResourceCommand.register(dispatcher);
-//        PAZCommand.register(dispatcher);
+        PlayerStatsCommand.register(dispatcher);
+        PAZStatsCommand.register(dispatcher);
 //        InvasionCommand.register(dispatcher);
 //        ChallengeCommand.register(dispatcher);
     }

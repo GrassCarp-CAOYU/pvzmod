@@ -25,6 +25,9 @@ public class EntityGroupHandler {
      */
     public static PVZGroupType getEntityGroupType(Entity entity){
         final EntityType<?> entityType = entity.getType();
+        if(entity instanceof Player){
+            return getPlayerGroup((Player) entity);
+        }
         // entity in plant group tag is in PLANTS.
         if(entityType.is(PVZEntityTags.PVZ_PLANT_GROUP_ENTITIES)){
             return PVZGroupType.PLANTS;
@@ -73,15 +76,29 @@ public class EntityGroupHandler {
     /**
      * whether entities belong to two group attack each other.
      */
-    public static boolean checkCanAttack(PVZGroupType group1, PVZGroupType group2) {
+    private static boolean checkCanAttack(PVZGroupType group1, PVZGroupType group2) {
         return group1.type != group2.type;
     }
 
     /**
      * whether entities belong to two group target each other first.
      */
-    public static boolean checkCanTarget(PVZGroupType group1, PVZGroupType group2) {
+    private static boolean checkCanTarget(PVZGroupType group1, PVZGroupType group2) {
         return group1.type * group2.type < 0;
+    }
+
+    /**
+     * whether entities belong to two group attack each other.
+     */
+    public static boolean checkCanAttack(Entity entity, Entity entity1) {
+        return checkCanAttack(getEntityGroupType(entity), getEntityGroupType(entity1));
+    }
+
+    /**
+     * whether entities belong to two group target each other first.
+     */
+    public static boolean checkCanTarget(Entity entity, Entity entity1) {
+        return checkCanTarget(getEntityGroupType(entity), getEntityGroupType(entity1));
     }
 
 }

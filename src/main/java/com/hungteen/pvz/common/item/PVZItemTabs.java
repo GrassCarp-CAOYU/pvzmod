@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common.item;
 
+import com.hungteen.pvz.common.block.PVZBlocks;
 import com.hungteen.pvz.common.impl.type.plant.PVZPlants;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +16,15 @@ public class PVZItemTabs {
     public static final CreativeModeTab PVZ_MISC = new CreativeModeTab("pvz_misc") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(Items.IRON_INGOT);
+            return new ItemStack(PVZItems.ORIGIN_ESSENCE.get());
+        }
+
+    };
+
+    public static final CreativeModeTab PVZ_BLOCK = new CreativeModeTab("pvz_block") {
+        @Override
+        public ItemStack makeIcon() {
+            return new ItemStack(PVZBlocks.ORIGIN_BLOCK.get());
         }
 
     };
@@ -31,7 +40,7 @@ public class PVZItemTabs {
     public static final CreativeModeTab PVZ_USEFUL = new CreativeModeTab("pvz_useful") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(Items.IRON_SWORD);
+            return new ItemStack(PVZItems.ORIGIN_SWORD.get());
         }
     };
 

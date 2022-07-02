@@ -4,12 +4,13 @@ import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.PVZAPI;
 import com.hungteen.pvz.api.types.IPlantType;
 import com.hungteen.pvz.api.types.base.IPAZType;
+import com.hungteen.pvz.common.block.PVZBlocks;
 import com.hungteen.pvz.common.entity.PVZEntities;
-import com.hungteen.pvz.common.impl.type.CDTypes;
-import com.hungteen.pvz.common.impl.type.EssenceTypes;
-import com.hungteen.pvz.common.impl.type.RankTypes;
+import com.hungteen.pvz.common.impl.type.*;
+import com.hungteen.pvz.utils.enums.CDTypes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,22 +26,95 @@ public class PVZPlants {
      * grass day.
      */
 
-//    public static final IPlantType PEA_SHOOTER = new PVZPlant("pea_shooter")
-//            .sunCost(100)
-//            .xp(10)
-//            .essence(EssenceTypes.APPEASE)
-//            .rank(RankTypes.WHITE)
-//            .cd(CDTypes.HUGE_FAST)
-//            .entity(() -> PVZEntities.)
-//            .skills(new ArrayList<>());
+    public static final IPlantType PEA_SHOOTER = new PVZPlantType("pea_shooter")
+            .sunCost(100).xp(10)
+            .essence(EssenceTypes.APPEASE)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.PEA_SHOOTER.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE, SkillTypes.PEA_DAMAGE, SkillTypes.PEA_SPEED_UP));
 
     public static final IPlantType SUN_FLOWER = new PVZPlantType("sun_flower")
             .sunCost(50).xp(10)
             .essence(EssenceTypes.LIGHT)
             .rank(RankTypes.WHITE)
-            .cd(CDTypes.LITTLE_SLOW)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.FAST)
             .entity(() -> PVZEntities.SUN_FLOWER.get())
-            .skills(new ArrayList<>());
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE));
+
+    public static final IPlantType WALL_NUT = new PVZPlantType("wall_nut")
+            .sunCost(50).xp(30)
+            .essence(EssenceTypes.DEFENCE)
+            .cardType(CardTypes.SAPLING)
+            .rank(RankTypes.WHITE)
+            .cd(CDTypes.LITTLE_SLOW)
+            .entity(() -> PVZEntities.WALL_NUT.get())
+            .skills(Arrays.asList(SkillTypes.NUT_MORE_LIFE, SkillTypes.BOWLING_NUT, SkillTypes.EXPLOSION_NUT));
+
+    public static final IPlantType POTATO_MINE = new PVZPlantType("potato_mine")
+            .sunCost(25).xp(10)
+            .essence(EssenceTypes.EXPLOSION)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.NORMAL)
+            .entity(() -> PVZEntities.POTATO_MINE.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE, SkillTypes.POTATO_BOMB_DAMAGE, SkillTypes.MINE_FAST_PREPARE));
+
+    public static final IPlantType SNOW_PEA = new PVZPlantType("snow_pea")
+            .sunCost(175).xp(20)
+            .essence(EssenceTypes.ICE)
+            .rank(RankTypes.GOLD)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.SNOW_PEA.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE, SkillTypes.PEA_DAMAGE, SkillTypes.PEA_SPEED_UP));
+
+    public static final IPlantType REPEATER = new PVZPlantType("repeater")
+            .sunCost(225).xp(20)
+            .essence(EssenceTypes.APPEASE)
+            .rank(RankTypes.BLUE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.REPEATER.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE, SkillTypes.PEA_DAMAGE, SkillTypes.PEA_SPEED_UP));
+
+    public static final IPlantType LILY_PAD = new PVZPlantType("lily_pad")
+            .sunCost(25).xp(1)
+            .essence(EssenceTypes.ASSIST)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.LILY_PAD.get())
+            .block(() -> PVZBlocks.LILY_PAD.get());
+
+    public static final IPlantType CABBAGE_PULT = new PVZPlantType("cabbage_pult")
+            .sunCost(100).xp(10)
+            .essence(EssenceTypes.ARMA)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.CABBAGE_PULT.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE));
+
+    public static final IPlantType FLOWER_POT = new PVZPlantType("flower_pot")
+            .sunCost(25).xp(1)
+            .essence(EssenceTypes.ASSIST)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.VERY_FAST)
+            .entity(() -> PVZEntities.FLOWER_POT.get())
+            .block(() -> PVZBlocks.FLOWER_POT.get());
+
+    public static final IPlantType ICEBERG_LETTUCE = new PVZPlantType("iceberg_lettuce")
+            .sunCost(0).xp(10)
+            .essence(EssenceTypes.ICE)
+            .rank(RankTypes.WHITE)
+            .cardType(CardTypes.SAPLING)
+            .cd(CDTypes.LITTLE_FAST)
+            .entity(() -> PVZEntities.ICEBERG_LETTUCE.get())
+            .skills(Arrays.asList(SkillTypes.PLANT_MORE_LIFE));
 
 //    public static final IPlantType CHERRY_BOMB = new PVZPlants("cherry_bomb", new PlantFeatures()
 //            .cost(150).requiredLevel(35)
@@ -574,7 +648,7 @@ public class PVZPlants {
 
         @Override
         public String getCategoryName() {
-            return "pvz";
+            return "pvz_plant";
         }
 
         @Override

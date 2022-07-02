@@ -2,11 +2,19 @@ package com.hungteen.pvz.common.entity;
 
 import com.hungteen.pvz.PVZMod;
 import com.hungteen.pvz.api.PVZAPI;
-import com.hungteen.pvz.common.entity.animal.GrassCarp;
+import com.hungteen.pvz.common.entity.bullet.CabbageBullet;
+import com.hungteen.pvz.common.entity.creature.GrassCarp;
+import com.hungteen.pvz.common.entity.bullet.PeaBullet;
+import com.hungteen.pvz.common.entity.creature.garden.CommonGardenPlant;
+import com.hungteen.pvz.common.entity.creature.garden.FlowerGardenPlant;
+import com.hungteen.pvz.common.entity.creature.garden.GardenPlant;
 import com.hungteen.pvz.common.entity.drop.*;
 import com.hungteen.pvz.common.entity.effect.OriginEffectEntity;
+import com.hungteen.pvz.common.entity.plant.*;
 import com.hungteen.pvz.common.entity.plant.base.PVZPlant;
-import com.hungteen.pvz.common.entity.plant.SunFlower;
+import com.hungteen.pvz.common.entity.zombie.*;
+import com.hungteen.pvz.common.entity.zombie.base.PVZZombie;
+import com.hungteen.pvz.common.entity.zombie.drop.ZombieDropPart;
 import com.hungteen.pvz.common.impl.type.PAZTypes;
 import com.hungteen.pvz.utils.Util;
 import net.minecraft.world.entity.Entity;
@@ -39,7 +47,7 @@ public class PVZEntities {
     /*
      Drop entity.
      */
-    public static final RegistryObject<EntityType<Sun>> SUN = registerEntityType(Sun::new, "sun", MobCategory.AMBIENT);
+    public static final RegistryObject<EntityType<Sun>> SUN = registerEntityType(Sun::new, "sun", MobCategory.MISC);
     public static final RegistryObject<EntityType<Coin>> COPPER_COIN = registerEntityType(Coin.CopperCoin::new, "copper_coin", MobCategory.MISC);
     public static final RegistryObject<EntityType<Coin>> SILVER_COIN = registerEntityType(Coin.SilverCoin::new, "silver_coin", MobCategory.MISC);
     public static final RegistryObject<EntityType<Coin>> GOLD_COIN = registerEntityType(Coin.GoldCoin::new, "gold_coin", MobCategory.MISC);
@@ -49,15 +57,17 @@ public class PVZEntities {
 //    public static final RegistryObject<EntityType<GiftBoxEntity>> GIFT_BOX = registerEntityType(GiftBoxEntity::new, "gift_box", EntityClassification.MISC, 0.9f, 1f);
 
     /*
-     Effects
+     Misc
      */
     public static final RegistryObject<EntityType<OriginEffectEntity>> ORIGIN_EFFECT = registerEntityType(OriginEffectEntity::new, "origin_effect", MobCategory.MISC);
 //    public static final RegistryObject<EntityType<DoomFixerEntity>> DOOM_FIXER = registerEntityType(DoomFixerEntity::new, "doom_fixer", EntityClassification.MISC);
+    public static final RegistryObject<EntityType<ZombieDropPart>> ZOMBIE_DROP_PART = registerEntityType(ZombieDropPart::new, "zombie_drop_part", MobCategory.MISC);
 
     /*
      Bullets
      */
-//    public static final RegistryObject<EntityType<PeaEntity>> PEA = registerEntityType(PeaEntity::new, "pea", EntityClassification.MISC);
+    public static final RegistryObject<EntityType<PeaBullet>> PEA_BULLET = registerEntityType(PeaBullet::new, "pea_bullet", MobCategory.MISC);
+    public static final RegistryObject<EntityType<CabbageBullet>> CABBAGE_BULLET = registerEntityType(CabbageBullet::new, "cabbage_bullet", MobCategory.MISC);
 //    public static final RegistryObject<EntityType<PotatoEntity>> POTATO = registerEntityType(PotatoEntity::new, "potato", EntityClassification.MISC);
 //    public static final RegistryObject<EntityType<SporeEntity>> SPORE = registerEntityType(SporeEntity::new, "spore", EntityClassification.MISC);
 //    public static final RegistryObject<EntityType<FumeEntity>> FUME = registerEntityType(FumeEntity::new, "fume", EntityClassification.MISC);
@@ -73,19 +83,27 @@ public class PVZEntities {
 //    public static final RegistryObject<EntityType<BallEntity>> BALL = registerEntityType(BallEntity::new, "ball", EntityClassification.MISC);
 //    public static final RegistryObject<EntityType<CornEntity>> CORN = registerEntityType(CornEntity::new, "corn", EntityClassification.MISC);
 
-
     /*
     Animals
      */
     public static final RegistryObject<EntityType<GrassCarp>> GRASS_CARP = registerEntityType(GrassCarp::new, "grass_carp", MobCategory.WATER_CREATURE);
+    public static final RegistryObject<EntityType<CommonGardenPlant>> COMMON_GARDEN_PLANT = registerEntityType(CommonGardenPlant::new, "common_garden_plant", MobCategory.CREATURE);
+    public static final RegistryObject<EntityType<FlowerGardenPlant>> FLOWER_GARDEN_PLANT = registerEntityType(FlowerGardenPlant::new, "flower_garden_plant", MobCategory.CREATURE);
 
     /*
      Plants
      */
-//    public static final RegistryObject<EntityType<PeaShooterEntity>> PEA_SHOOTER = registerPlantEntityType(PeaShooterEntity::new, "pea_shooter");
+    public static final RegistryObject<EntityType<PeaShooter>> PEA_SHOOTER = registerPlantEntityType(PeaShooter::new, "pea_shooter");
     public static final RegistryObject<EntityType<SunFlower>> SUN_FLOWER = registerPlantEntityType(SunFlower::new, "sun_flower");
+    public static final RegistryObject<EntityType<WallNut>> WALL_NUT = registerPlantEntityType(WallNut::new, "wall_nut");
+    public static final RegistryObject<EntityType<PotatoMine>> POTATO_MINE = registerPlantEntityType(PotatoMine::new, "potato_mine");
+    public static final RegistryObject<EntityType<SnowPea>> SNOW_PEA = registerPlantEntityType(SnowPea::new, "snow_pea");
+    public static final RegistryObject<EntityType<Repeater>> REPEATER = registerPlantEntityType(Repeater::new, "repeater");
+    public static final RegistryObject<EntityType<LilyPad>> LILY_PAD = registerPlantEntityType(LilyPad::new, "lily_pad");
+    public static final RegistryObject<EntityType<CabbagePult>> CABBAGE_PULT = registerPlantEntityType(CabbagePult::new, "cabbage_pult");
+    public static final RegistryObject<EntityType<FlowerPot>> FLOWER_POT = registerPlantEntityType(FlowerPot::new, "flower_pot");
+    public static final RegistryObject<EntityType<IcebergLettuce>> ICEBERG_LETTUCE = registerPlantEntityType(IcebergLettuce::new, "iceberg_lettuce");
 //    public static final RegistryObject<EntityType<CherryBombEntity>> CHERRY_BOMB = registerPlantEntityType(CherryBombEntity::new, "cherry_bomb");
-//    public static final RegistryObject<EntityType<WallNutEntity>> WALL_NUT = registerPlantEntityType(WallNutEntity::new, "wall_nut");
 //    public static final RegistryObject<EntityType<PotatoMineEntity>> POTATO_MINE = registerPlantEntityType(PotatoMineEntity::new, "potato_mine");
 //    public static final RegistryObject<EntityType<SnowPeaEntity>> SNOW_PEA = registerPlantEntityType(SnowPeaEntity::new, "snow_pea");
 //    public static final RegistryObject<EntityType<ChomperEntity>> CHOMPER = registerPlantEntityType(ChomperEntity::new, "chomper");
@@ -140,6 +158,15 @@ public class PVZEntities {
 //    public static final RegistryObject<EntityType<ImitaterEntity>> IMITATER = registerPlantEntityType(ImitaterEntity::new, "imitater");
 //    public static final RegistryObject<EntityType<CobCannonEntity>> COB_CANNON = registerPlantEntityType(CobCannonEntity::new, "cob_cannon");
 
+    /*
+    Zombies
+     */
+    public static final RegistryObject<EntityType<NormalZombie>> NORMAL_ZOMBIE = registerZombieEntityType(NormalZombie::new, "normal_zombie");
+    public static final RegistryObject<EntityType<FlagZombie>> FLAG_ZOMBIE = registerZombieEntityType(FlagZombie::new, "flag_zombie");
+    public static final RegistryObject<EntityType<ConeHeadZombie>> CONE_HEAD_ZOMBIE = registerZombieEntityType(ConeHeadZombie::new, "cone_head_zombie");
+    public static final RegistryObject<EntityType<BucketHeadZombie>> BUCKET_HEAD_ZOMBIE = registerZombieEntityType(BucketHeadZombie::new, "bucket_head_zombie");
+    public static final RegistryObject<EntityType<LeaderZombie>> LEADER_ZOMBIE = registerZombieEntityType(LeaderZombie::new, "leader_zombie");
+
 
     public static void addEntityAttributes(EntityAttributeCreationEvent ev) {
         PAZTypes.postInit();
@@ -149,8 +176,14 @@ public class PVZEntities {
                 ev.put(entityType, PVZPAZ.createPAZAttributes().build());
             });
         });
+
         //others.
         ev.put(GRASS_CARP.get(), GrassCarp.createAttributes().build());
+        ev.put(COMMON_GARDEN_PLANT.get(), GardenPlant.createAttributes().build());
+        ev.put(FLOWER_GARDEN_PLANT.get(), GardenPlant.createAttributes().build());
+
+        //misc.
+        ev.put(ZOMBIE_DROP_PART.get(), ZombieDropPart.createAttributes().build());
 //        Arrays.asList(
 //                CRAZY_DAVE.get(), SUN_DAVE.get(), PANNEY.get(),
 //                FOODIE_ZOMBIE.get()
@@ -163,9 +196,9 @@ public class PVZEntities {
         return ENTITY_TYPES.register(name, () -> {return EntityType.Builder.of(factory, classification).build(Util.prefix(name).toString());});
     }
 
-//    private static <T extends PVZZombieEntity> RegistryObject<EntityType<T>> registerZombieEntityType(IFactory<T> factory, String name){
-//        return ENTITY_TYPES.register(name, () -> {return EntityType.Builder.of(factory, PVZEntityClassifications.PVZ_ZOMBIE).fireImmune().build(StringUtil.prefix(name).toString());});
-//    }
+    private static <T extends PVZZombie> RegistryObject<EntityType<T>> registerZombieEntityType(EntityType.EntityFactory factory, String name){
+        return ENTITY_TYPES.register(name, () -> {return EntityType.Builder.of(factory, PVZMobCategories.PVZ_ZOMBIE).fireImmune().build(Util.prefix(name).toString());});
+    }
 
     private static <T extends PVZPlant> RegistryObject<EntityType<T>> registerPlantEntityType(EntityType.EntityFactory factory, String name){
         return ENTITY_TYPES.register(name, () -> {return EntityType.Builder.of(factory, PVZMobCategories.PVZ_PLANT).build(Util.prefix(name).toString());});

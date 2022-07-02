@@ -1,12 +1,13 @@
 package com.hungteen.pvz.api.types.base;
 
-import com.hungteen.pvz.api.types.*;
+import com.hungteen.pvz.api.types.ICardType;
+import com.hungteen.pvz.api.types.IEssenceType;
+import com.hungteen.pvz.api.types.IRankType;
+import com.hungteen.pvz.api.types.ISkillType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +41,17 @@ public interface IPAZType extends IIDType {
     /**
      * get the rank of type.
      */
-    IRankType getRank();
+    IRankType getRankType();
+
+    /**
+     * get its card type.
+     */
+    ICardType getCardType();
 
     /**
      * get the essence type that the plant belongs to.
      */
-    IEssenceType getEssence();
+    IEssenceType getEssenceType();
 
     /**
      * get the entity type of current type.
@@ -93,7 +99,6 @@ public interface IPAZType extends IIDType {
     /**
      * default render texture.
      */
-    @OnlyIn(Dist.CLIENT)
     ResourceLocation getDefaultResource();
 
     /**

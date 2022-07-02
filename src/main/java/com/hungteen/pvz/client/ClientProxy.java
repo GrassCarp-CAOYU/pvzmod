@@ -1,9 +1,10 @@
 package com.hungteen.pvz.client;
 
+import com.hungteen.pvz.client.gui.screen.AlmanacScreen;
 import com.hungteen.pvz.common.CommonProxy;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 
 /**
  * @program: pvzmod-1.18.x
@@ -15,8 +16,12 @@ public class ClientProxy extends CommonProxy {
     public static final Minecraft MC = Minecraft.getInstance();
 
     @Override
-    public void setUpClient() {
-        PVZKeyBinds.register();
+    public void postInit() {
+    }
+
+    @Override
+    public void openAlmanacGUI(LivingEntity livingEntity) {
+        MC.setScreen(new AlmanacScreen(livingEntity));
     }
 
     @Override

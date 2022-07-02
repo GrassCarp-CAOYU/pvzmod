@@ -1,5 +1,6 @@
 package com.hungteen.pvz.common;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -14,7 +15,7 @@ public class CommonProxy {
 
     }
 
-    public void setUpClient() {
+    public void openAlmanacGUI(LivingEntity livingEntity){
 
     }
 
